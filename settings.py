@@ -44,5 +44,5 @@ DEMO_PAGE_INTRO_HTML = """ """
 SECRET_KEY = '1634661595029'
 EXTENSION_APPS = ['otree_redwood', 'otree_markets','otree_single_asset_market']
 INSTALLED_APPS = ['otree']
-
+dffd 
 
