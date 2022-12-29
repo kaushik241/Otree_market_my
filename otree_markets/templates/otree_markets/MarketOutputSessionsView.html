@@ -1,0 +1,62 @@
+{% extends "otree/BaseAdmin.html" %}
+{% load static otree %}
+
+{% block title %}
+  {{ session_config.display_name }} Data Export
+{% endblock %}
+
+{% block scripts %}
+    <script>
+        $(document).ready(function() {
+            $('tr.demo').toggle($('#show_demo').prop('checked'));
+
+            $('#show_demo').on('click', function() {
+                const checked = $(this).prop('checked');
+                $('tr.demo').toggle(checked);
+            });
+        })
+    </script>
+{% endblock %} 
+
+{% block styles %}
+    <style>
+        .session-code {
+            font-family: monospace,monospace;
+        }
+    </style>
+{% endblock %} 
+
+{% block content %}
+
+    <div>
+        <label for="show_demo">Show Demo Sessions</label>
+        <input type="checkbox" id="show_demo">
+    </div>
+
+    <table class="table">
+        <tr>
+            <th>Session Code</th>
+            {% for _ in output_types %}
+            <th></th>
+            {% endfor %}
+        </tr>
+        {% for session in sessions %}
+        <tr class="{{ session.is_demo|yesno:'demo,' }}">
+            <td>
+                <span class="session-code">{{ session.code }}</span>
+
+                {% if session.is_demo %}
+                <span> (demo)</span>
+                {% endif %}
+            </td>
+            {% for output_type in output_types %}
+            <td>
+                <a href="{% url ''|add:output_type.url_name session.code %}"
+                   class="download-link">{{ output_type.link_text }}</a>
+            </td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+    </table>
+
+{% endblock %}
