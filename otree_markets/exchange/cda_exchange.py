@@ -148,7 +148,7 @@ class CDAExchange(BaseExchange):
         accepted_order.save()
 
         self._send_trade_confirmation(trade)
-    
+    #Changed by Kaushik to make a order book in which a person can't trade with himself
     def _handle_insert_bid(self, bid_order):
         '''handle a bid being inserted into the order book, transacting if necessary'''
         # if this order isn't aggressive enough to transact with the best ask, just enter it
@@ -187,6 +187,7 @@ class CDAExchange(BaseExchange):
         bid_order.save()
         self._send_trade_confirmation(trade)
     
+    #Changed by Kaushik to make a order book in which a person can't trade with himself
     def _handle_insert_ask(self, ask_order):
         '''handle an ask being inserted into the order book, transacting if necessary'''
         # if this order isn't aggressive enough to transact with the best bid, just enter it
@@ -234,10 +235,11 @@ class CDAExchange(BaseExchange):
         )
         self._send_enter_confirmation(new_order)
 
+    #Changed by Kaushik
     def _handle_bid_market_order(self, volume, pcode):
         '''enter a bid market order'''
         # if there are no asks, just exit without doing anything
-        if volume == 0 or not self._get_best_ask():
+        if volume == 0 or not self._get_best_ask(pcode):
             return
         
         # use one datetime object for all timestamp updates so that
@@ -259,19 +261,20 @@ class CDAExchange(BaseExchange):
         asks = self._get_asks_qset()
         cur_volume = volume
         for ask in asks:
-            if cur_volume == 0:
-                break
-            if cur_volume >= ask.volume:
-                cur_volume -= ask.volume
-                ask.traded_volume = ask.volume
-            else:
-                self._enter_partial(ask, ask.volume - cur_volume)
-                ask.traded_volume = cur_volume
-                cur_volume = 0
-            ask.making_trade = trade
-            ask.status = OrderStatusEnum.MARKET_MAKER
-            ask.time_inactive = now
-            ask.save()
+            if ask.pcode != pcode:
+                if cur_volume == 0:
+                    break
+                if cur_volume >= ask.volume:
+                    cur_volume -= ask.volume
+                    ask.traded_volume = ask.volume
+                else:
+                    self._enter_partial(ask, ask.volume - cur_volume)
+                    ask.traded_volume = cur_volume
+                    cur_volume = 0
+                ask.making_trade = trade
+                ask.status = OrderStatusEnum.MARKET_MAKER
+                ask.time_inactive = now
+                ask.save()
         taking_order.traded_volume = volume - cur_volume
         taking_order.time_inactive = now
         taking_order.save()
@@ -280,7 +283,7 @@ class CDAExchange(BaseExchange):
     def _handle_ask_market_order(self, volume, pcode):
         '''enter an ask market order'''
         # if there are no asks, just exit without doing anything
-        if volume == 0 or not self._get_best_bid():
+        if volume == 0 or not self._get_best_bid(pcode):
             return
 
         # use one datetime object for all timestamp updates so that
@@ -303,19 +306,20 @@ class CDAExchange(BaseExchange):
         bids = self._get_bids_qset()
         cur_volume = volume
         for bid in bids:
-            if cur_volume == 0:
-                break
-            if cur_volume >= bid.volume:
-                cur_volume -= bid.volume
-                bid.traded_volume = bid.volume
-            else:
-                self._enter_partial(bid, bid.volume - cur_volume)
-                bid.traded_volume = cur_volume
-                cur_volume = 0
-            bid.making_trade = trade
-            bid.status = OrderStatusEnum.MARKET_MAKER
-            bid.time_inactive = now
-            bid.save()
+            if bid.pcode != pcode:
+                if cur_volume == 0:
+                    break
+                if cur_volume >= bid.volume:
+                    cur_volume -= bid.volume
+                    bid.traded_volume = bid.volume
+                else:
+                    self._enter_partial(bid, bid.volume - cur_volume)
+                    bid.traded_volume = cur_volume
+                    cur_volume = 0
+                bid.making_trade = trade
+                bid.status = OrderStatusEnum.MARKET_MAKER
+                bid.time_inactive = now
+                bid.save()
         taking_order.traded_volume = volume - cur_volume
         taking_order.time_inactive = now
         taking_order.save()
@@ -328,15 +332,16 @@ class CDAExchange(BaseExchange):
         curr_volume = volume 
         required_money = 0
         for bid in bids:
-            if curr_volume == 0:
-                break
-            if curr_volume >= bid.volume:
-                required_money = required_money + bid.price*bid.volume
-                curr_volume -= bid.volume
-                print(required_money)
-            else:
-                required_money = required_money + bid.price*curr_volume
-                print(required_money)
+            if bid.pcode != pcode:
+                if curr_volume == 0:
+                    break
+                if curr_volume >= bid.volume:
+                    required_money = required_money + bid.price*bid.volume
+                    curr_volume -= bid.volume
+                    print(required_money)
+                else:
+                    required_money = required_money + bid.price*curr_volume
+                    print(required_money)
         return required_money
 
     #Changed by Kaushik for bids
@@ -346,15 +351,16 @@ class CDAExchange(BaseExchange):
         curr_volume = volume 
         required_money = 0
         for ask in asks:
-            if curr_volume == 0:
-                break
-            if curr_volume >= ask.volume:
-                required_money = required_money + ask.price*ask.volume
-                curr_volume -= ask.volume
-                print(required_money)
-            else:
-                required_money = required_money + ask.price*curr_volume
-                print(required_money)
+            if ask.pcode != pcode:
+                if curr_volume == 0:
+                    break
+                if curr_volume >= ask.volume:
+                    required_money = required_money + ask.price*ask.volume
+                    curr_volume -= ask.volume
+                    print(required_money)
+                else:
+                    required_money = required_money + ask.price*curr_volume
+                    print(required_money)
         return required_money
     
 
