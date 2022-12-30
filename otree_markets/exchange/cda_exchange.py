@@ -41,13 +41,28 @@ class CDAExchange(BaseExchange):
         return (self.orders.filter(is_bid=False, status=OrderStatusEnum.ACTIVE)
                            .order_by('price', 'timestamp'))
     
-    def _get_best_bid(self):
+    #Changed by Kaushik
+    def _get_best_bid(self,asker_pcode):
         '''get the best bid in this exchange'''
-        return self._get_bids_qset().first()
+        bids = self._get_bids_qset()
+        for bid in bids:
+            print(bid.pcode)
+            #return self._get_bids_qset().first()
+            if bid.pcode != asker_pcode:
+                #return self._get_bids_qset().first()
+                return bid
     
-    def _get_best_ask(self):
+    #Changed by Kaushik
+    def _get_best_ask(self,bidder_pcode):
         '''get the best ask in this exchange'''
-        return self._get_asks_qset().first()
+        asks = self._get_asks_qset()
+        for ask in asks:
+            print(ask.pcode)
+            #return self._get_asks_qset().first()
+            
+            if ask.pcode != bidder_pcode:
+                # return self._get_asks_qset().first()
+                return ask
     
     def _get_trades_qset(self):
         '''get a queryset of all trades that have occurred in this exchange, ordered by descending timestamp
@@ -76,6 +91,8 @@ class CDAExchange(BaseExchange):
             self._handle_insert_bid(order)
         else:
             self._handle_insert_ask(order)
+
+
     
     def enter_market_order(self, volume, is_bid, pcode):
         '''enter a market order into the exchange
@@ -135,28 +152,33 @@ class CDAExchange(BaseExchange):
     def _handle_insert_bid(self, bid_order):
         '''handle a bid being inserted into the order book, transacting if necessary'''
         # if this order isn't aggressive enough to transact with the best ask, just enter it
-        best_ask = self._get_best_ask()
-        if not best_ask or bid_order.price < best_ask.price:
+        #best_ask = self._get_best_ask()
+        #Changed by Kaushik
+        best_ask = self._get_best_ask(bid_order.pcode)
+        if (not best_ask) or (bid_order.price < best_ask.price and bid_order.pcode != best_ask.pcode):
             self._send_enter_confirmation(bid_order)
+            
             return
 
         asks = self._get_asks_qset()
         trade = self.trades.create(taking_order=bid_order)
         cur_volume = bid_order.volume
         for ask in asks:
-            if cur_volume == 0 or bid_order.price < ask.price:
-                break
-            if cur_volume >= ask.volume:
-                cur_volume -= ask.volume
-                ask.traded_volume = ask.volume
-            else:
-                self._enter_partial(ask, ask.volume - cur_volume)
-                ask.traded_volume = cur_volume
-                cur_volume = 0
-            ask.making_trade = trade
-            ask.status = OrderStatusEnum.TRADED_MAKER
-            ask.time_inactive = trade.timestamp
-            ask.save()
+            if ask.pcode != bid_order.pcode:
+                print('HIiii')
+                if cur_volume == 0 or bid_order.price < ask.price:
+                    break
+                if cur_volume >= ask.volume:
+                    cur_volume -= ask.volume
+                    ask.traded_volume = ask.volume
+                else:
+                    self._enter_partial(ask, ask.volume - cur_volume)
+                    ask.traded_volume = cur_volume
+                    cur_volume = 0
+                ask.making_trade = trade
+                ask.status = OrderStatusEnum.TRADED_MAKER
+                ask.time_inactive = trade.timestamp
+                ask.save()
         if cur_volume > 0:
             self._enter_partial(bid_order, cur_volume)
         bid_order.traded_volume = bid_order.volume - cur_volume
@@ -168,8 +190,10 @@ class CDAExchange(BaseExchange):
     def _handle_insert_ask(self, ask_order):
         '''handle an ask being inserted into the order book, transacting if necessary'''
         # if this order isn't aggressive enough to transact with the best bid, just enter it
-        best_bid = self._get_best_bid()
-        if not best_bid or ask_order.price > best_bid.price:
+        # best_bid = self._get_best_bid()
+        #Changed by Kaushik
+        best_bid = self._get_best_bid(ask_order.pcode)
+        if (not best_bid) or (ask_order.price > best_bid.price and ask_order.pcode != best_bid.pcode):
             self._send_enter_confirmation(ask_order)
             return
 
@@ -177,19 +201,20 @@ class CDAExchange(BaseExchange):
         trade = self.trades.create(taking_order=ask_order)
         cur_volume = ask_order.volume
         for bid in bids:
-            if cur_volume == 0 or ask_order.price > bid.price :
-                break
-            if cur_volume >= bid.volume:
-                cur_volume -= bid.volume
-                bid.traded_volume = bid.volume
-            else:
-                self._enter_partial(bid, bid.volume - cur_volume)
-                bid.traded_volume = cur_volume
-                cur_volume = 0
-            bid.making_trade = trade
-            bid.status = OrderStatusEnum.TRADED_MAKER
-            bid.time_inactive = trade.timestamp
-            bid.save()
+            if ask_order.pcode != bid.pcode:
+                if cur_volume == 0 or ask_order.price > bid.price :
+                    break
+                if cur_volume >= bid.volume:
+                    cur_volume -= bid.volume
+                    bid.traded_volume = bid.volume
+                else:
+                    self._enter_partial(bid, bid.volume - cur_volume)
+                    bid.traded_volume = cur_volume
+                    cur_volume = 0
+                bid.making_trade = trade
+                bid.status = OrderStatusEnum.TRADED_MAKER
+                bid.time_inactive = trade.timestamp
+                bid.save()
         if cur_volume > 0:
             self._enter_partial(ask_order, cur_volume)
         ask_order.traded_volume = ask_order.volume - cur_volume
