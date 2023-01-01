@@ -71,6 +71,16 @@ class CDAExchange(BaseExchange):
         '''
         return (self.trades.order_by('-timestamp')
                            .prefetch_related('taking_order', 'making_orders'))
+
+    #Just used this because _get_trades_qset is private method
+    def get_trades_qset_public(self):
+        '''get a queryset of all trades that have occurred in this exchange, ordered by descending timestamp
+        
+        use descending timestamp because knowledge of recent trades is more useful than that of older trades
+        '''
+        return (self.trades.order_by('-timestamp')
+                           .prefetch_related('taking_order', 'making_orders'))
+
     
     def _get_order(self, order_id):
         try:

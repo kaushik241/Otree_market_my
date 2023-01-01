@@ -27,5 +27,5 @@ class BaseMarketPage(Page):
                 'available_cash': self.player.available_cash,
                 'settled_cash': self.player.settled_cash,
             }
-        })
+        }) 
         return context

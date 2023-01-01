@@ -36,6 +36,7 @@ class Subsession(markets_models.Subsession):
         return super().creating_session()
 
 
+
 class Group(markets_models.Group):
     pass
 

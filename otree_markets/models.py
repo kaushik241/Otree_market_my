@@ -114,6 +114,11 @@ class Group(RedwoodGroup): #Changed by kaushik
         #Calculating custom condition for market order
         '''This is useful to use the methods of CDAExchange and to retrive limit order book to calculate market price required to place and bid'''
         exchange = self.exchanges.get(asset_name = asset_name)
+
+        #Changed by kaushik for just an experimental pourpose
+        print(exchange.get_trades_qset_public())
+
+
         # print(exchange.calculate_ask_price_for_market_order(enter_msg['volume'],enter_msg['pcode']))
         '''bid_price is price to fill the buy order'''
         print(exchange.calculate_bid_price_for_market_order(enter_msg['volume'],enter_msg['pcode'])) 
@@ -182,6 +187,7 @@ class Group(RedwoodGroup): #Changed by kaushik
 
     def confirm_trade(self, trade: Trade):
         '''send a trade confirmation to the frontend. this function is called by the exchange when a trade occurs'''
+        
 
         taking_player = self.get_player(trade.taking_order.pcode)
         for making_order in trade.making_orders.all():
@@ -269,9 +275,20 @@ class Player(BasePlayer):
         param removed is true when the changed order was removed and false when the changed order was added'''
         sign = 1 if removed else -1
         if order.is_bid:
-            self.available_cash += order.price * order.volume * sign
+            #Changed by Kaushik to implement Brokerage of 1 Rupee
+            self.available_cash += (order.price * order.volume * sign)
+            print(self.available_cash)
+            if not removed:
+                self.available_cash -= 1
+                print(self.available_cash)
+
         else:
+            #Changed by Kaushik to implement Brokerage of 1 Rupee
             self.available_assets[order.exchange.asset_name] += order.volume * sign
+            print(self.available_cash)
+            if not removed:
+                self.available_cash -= 1
+                print(self.available_cash)
 
     def update_holdings_trade(self, price, volume, is_bid, asset_name):
         '''update this player's holdings (cash and assets) after a trade occurs.

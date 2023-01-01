@@ -311,10 +311,20 @@ export class TraderState extends PolymerElement {
     // removed is true when an order was removed and false when it was added
     update_holdings_available(order, removed) {
         const sign = removed ? 1 : -1;
-        if (order.is_bid)
+        if (order.is_bid){
             this.availableCash += order.price * order.volume * sign;
-        else
+
+            // Changed by Kaushik to implement Brokerage
+            if (removed == false)
+                this.availableCash -= 1;
+
+        }
+        else{
             this._update_subproperty('availableAssetsDict', order.asset_name, order.volume * sign)
+            // Changed by Kaushik to implement Brokerage
+            if (removed == false)
+                this.availableCash -= 1;
+        }
     }
 
     _update_subproperty(property, subproperty, amount) {

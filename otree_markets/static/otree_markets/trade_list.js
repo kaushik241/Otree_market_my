@@ -15,7 +15,7 @@ export class TradeList extends PolymerElement {
             displayFormat: {
                 type: Object,
                 value: function() {
-                    return (making_order, taking_order) => `${making_order.traded_volume} @ $${making_order.price}`;
+                    return (making_order, taking_order) => `${making_order.traded_volume} @ $${making_order.price} -- ${making_order.timestamp}`;
                 },
             },
         };
