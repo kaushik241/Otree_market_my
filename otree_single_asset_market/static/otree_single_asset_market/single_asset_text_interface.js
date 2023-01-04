@@ -26,6 +26,8 @@ class SingleAssetTextInterface extends PolymerElement {
             availableAssets: Number,
             settledCash: Number,
             availableCash: Number,
+            questionInfo: String,
+            clueInfo: String,
         };
     }
 
@@ -33,6 +35,7 @@ class SingleAssetTextInterface extends PolymerElement {
         return html`
             <!-- This is CSS of the whole Page -->
             <head>
+            
             <style>
             #main-container{
                 display: grid;
@@ -128,6 +131,8 @@ class SingleAssetTextInterface extends PolymerElement {
                 available-assets="{{availableAssets}}"
                 settled-cash="{{settledCash}}"
                 available-cash="{{availableCash}}"
+                questionInfo="{{questionInfo}}"
+                clueInfo="{{clueInfo}}"
                 on-confirm-trade="_confirm_trade"
                 on-confirm-cancel="_confirm_cancel"
                 on-error="_handle_error"
@@ -138,7 +143,7 @@ class SingleAssetTextInterface extends PolymerElement {
 
         <div id="main-container">
             <div id="graph-container">
-    
+            
             </div>
     
             <div id="details-container">
@@ -147,7 +152,12 @@ class SingleAssetTextInterface extends PolymerElement {
                         Information Box
                     </div>
                     <div class="card-body">
-                        <p class="card-text">Possible payouts and other information</p>
+                        <p class="card-text">
+                            [[questionInfo]]
+                        </p>
+                        <p class="card-text">
+                            [[availableCash]]
+                        </p>
                     </div>
                 </div>
                 <div id="ask-bid">

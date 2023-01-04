@@ -2,7 +2,7 @@ from otree_markets.pages import BaseMarketPage
 
 class Market(BaseMarketPage):
 
-    timeout_seconds = 60
+    timeout_seconds = 600
     def is_displayed(self):
         return self.round_number <= self.subsession.config.num_rounds
 

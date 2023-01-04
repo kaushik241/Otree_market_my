@@ -5,8 +5,10 @@ from otree.api import (
 from otree_redwood.models import Group as RedwoodGroup
 from jsonfield import JSONField
 from django.utils import timezone
+from otree.db import models
 from django.contrib.contenttypes.fields import GenericRelation
 import logging
+import random 
 
 from .exchange.cda_exchange import CDAExchange
 from .exchange.base import Order, Trade, BaseExchange
@@ -242,10 +244,49 @@ class Player(BasePlayer):
     settled_cash = models.IntegerField()
     available_cash = models.IntegerField()
 
+    question_info = models.CharField()
+    clue_info = models.CharField()
+    
+
+    #Changed by kaushik
+    #To calculate the information box
+    def question_info_func(self):
+        payout = [50,240,490]
+        probabilities = [0.35,0.45,0.20]
+        true_ans_index = 1
+        true_ans = payout[true_ans_index]
+        true_prob = probabilities[true_ans_index]
+        
+        payout_string = ""
+        for i,j in zip(payout,probabilities):
+            payout_string = payout_string + f"${i} ({j*100}% Chance) or "
+            
+
+        payout_string = 'or'.join(payout_string.split('or')[:-1])
+        payout.remove(true_ans)
+        probabilities.remove(true_prob)
+        hint_payout_index = random.choice([i for i,j in enumerate(payout)])
+        hing_payout = payout[hint_payout_index]
+        
+        hint_string = f"The asset will not pay ${hing_payout}"
+        
+        return [payout_string, hint_string]
+
+
+    
+
+    
+
+
     def asset_endowment(self):
         '''this method defines each player's initial endowment of each asset. in single-asset mode, this should return
         a single value for the single asset. in multiple-asset mode, this should return a dict mapping asset names to
         endowments'''
+
+        
+
+
+
         raise NotImplementedError
 
     def cash_endowment(self):
@@ -266,6 +307,13 @@ class Player(BasePlayer):
         cash_endowment = self.cash_endowment()
         self.settled_cash = cash_endowment
         self.available_cash = cash_endowment
+
+        #Changed by Kaushik
+        #To initialize information box
+        self.question_info = self.question_info_func()[0]
+        print(self.question_info)
+        self.clue_info = self.question_info_func()[1]
+        print(self.clue_info)
 
         self.save()
     

@@ -26,6 +26,9 @@ class BaseMarketPage(Page):
                 'settled_assets': json.dumps(self.player.settled_assets),
                 'available_cash': self.player.available_cash,
                 'settled_cash': self.player.settled_cash,
+                'question_info': self.player.question_info,
+                'clue_info': self.player.clue_info,
             }
         }) 
+        print(context)
         return context

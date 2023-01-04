@@ -69,6 +69,17 @@ export class TraderState extends PolymerElement {
                 value: TRADER_STATE.available_cash,
                 notify: true,
             },
+            questionInfo: {
+                type: String,
+                value: TRADER_STATE.question_info,
+                notify: true,
+            },
+            clueInfo: {
+                type: String,
+                value: TRADER_STATE.clue_info,
+                notify: true,
+            },
+
             // the amount of time remaining in this round of trading in seconds if period_length is set, null otherwise
             // updated once a second
             timeRemaining: {
@@ -297,6 +308,8 @@ export class TraderState extends PolymerElement {
 
             this.availableCash -= price * volume;
             this.settledCash -= price * volume;
+            alert(this.settledAssets)
+
         }
         else {
             this._update_subproperty('availableAssetsDict', asset_name, -volume);

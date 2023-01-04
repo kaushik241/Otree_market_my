@@ -9,7 +9,7 @@ SESSION_CONFIGS = [
     dict(
     name='otree_single_asset_market',
     display_name='Single Asset Market',
-    num_demo_participants=2,
+    num_demo_participants=3,
     app_sequence=['otree_single_asset_market'],
     config_file='demo.csv',
 )
