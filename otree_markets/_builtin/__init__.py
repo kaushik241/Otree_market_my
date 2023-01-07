@@ -10,6 +10,9 @@ class Page(otree.api.Page):
         self.subsession = models.Subsession()
         self.group = models.Group()
         self.player = models.Player()
+        # print('HIIIII')
+        # print(self.player.question_info())
+        # print('HIIIII')
 
 
 class WaitPage(otree.api.WaitPage):

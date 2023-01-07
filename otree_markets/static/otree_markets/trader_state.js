@@ -11,6 +11,7 @@ export class TraderState extends PolymerElement {
     */
 
     static get properties() {
+        console.log(TRADER_STATE)
         return {
             // array of bid order objects
             // ordered by price descending, then timestamp
@@ -71,12 +72,12 @@ export class TraderState extends PolymerElement {
             },
             questionInfo: {
                 type: String,
-                value: TRADER_STATE.question_info,
+                value: TRADER_STATE.questionInfo,
                 notify: true,
             },
             clueInfo: {
                 type: String,
-                value: TRADER_STATE.clue_info,
+                value: TRADER_STATE.clueInfo,
                 notify: true,
             },
 
@@ -146,7 +147,7 @@ export class TraderState extends PolymerElement {
     ready() {
         super.ready();
         this.pcode = this.$.constants.participantCode;
-
+        console.log(TRADER_STATE.clueInfo)
         // dynamically make single-asset properties computed only when in single-asset mode
         // that way these properties will just be null when using multiple assets. might prevent some confusion
         if (Object.keys(this.availableAssetsDict).length == 1) {
@@ -308,7 +309,7 @@ export class TraderState extends PolymerElement {
 
             this.availableCash -= price * volume;
             this.settledCash -= price * volume;
-            alert(this.settledAssets)
+            alert(this.clueInfo)
 
         }
         else {

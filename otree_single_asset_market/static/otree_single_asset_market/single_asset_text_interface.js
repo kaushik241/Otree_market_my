@@ -35,7 +35,7 @@ class SingleAssetTextInterface extends PolymerElement {
         return html`
             <!-- This is CSS of the whole Page -->
             <head>
-            
+
             <style>
             #main-container{
                 display: grid;
@@ -143,7 +143,8 @@ class SingleAssetTextInterface extends PolymerElement {
 
         <div id="main-container">
             <div id="graph-container">
-            
+            <canvas id="myChart"></canvas>
+
             </div>
     
             <div id="details-container">
@@ -152,11 +153,9 @@ class SingleAssetTextInterface extends PolymerElement {
                         Information Box
                     </div>
                     <div class="card-body">
-                        <p class="card-text">
-                            [[questionInfo]]
+                        <p id = "question_info_id">
                         </p>
-                        <p class="card-text">
-                            [[availableCash]]
+                        <p id="clue_info_id">
                         </p>
                     </div>
                 </div>
@@ -215,6 +214,56 @@ class SingleAssetTextInterface extends PolymerElement {
     ready() {
         super.ready();
         this.pcode = this.$.constants.participantCode;
+        // console.log(document.getElementById("main-container"));
+        console.log(this.$.myChart);
+        this.$.question_info_id.innerHTML = this.$.trader_state.questionInfo
+        this.$.clue_info_id.innerHTML = this.$.trader_state.clueInfo
+        console.log(this.$.trader_state.trades)
+        console.log(this.$.trader_state.clueInfo)
+
+        const diffMakingOrders = [];
+        for (const i of this.$.trader_state.trades) {
+            diffMakingOrders.push(i['making_orders']);
+        }
+
+        const tradeInfo = [];
+        const priceInfo = [];
+        const timeInfo = [];
+        for (const i of diffMakingOrders) {
+            for (const j of i) {
+                tradeInfo.push([j['timestamp'], j['price'], j['volume']]);
+                priceInfo.push(j['price']);
+                timeInfo.push(j['timestamp'])
+            }
+        }
+
+
+
+        console.log(priceInfo)
+
+
+
+
+        var ctx = this.$.myChart.getContext('2d');
+        var myChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                // labels: ["Tokyo",	"Mumbai",	"Mexico City",	"Shanghai",	"Sao Paulo",	"New York",	"Karachi","Buenos Aires",	"Delhi","Moscow"],
+                labels: timeInfo,
+                datasets: [{
+                    label: 'Series 1', // Name the series
+                    // data: [500,	50,	2424,	14040,	14141,	4111,	4544,	47,	5555, 6811], // Specify the data values array
+                    data: priceInfo,
+                    fill: false,
+                    borderColor: '#2196f3', // Add custom color border (Line)
+                    backgroundColor: '#2196f3', // Add custom color background (Points and Fill)
+                    borderWidth: 1 // Specify bar border width
+                }]},
+            options: {
+            responsive: true, // Instruct chart js to respond nicely.
+            maintainAspectRatio: false, // Add to prevent default behaviour of full-width/height 
+            }
+        });
     }
 
     // triggered when this player enters an order

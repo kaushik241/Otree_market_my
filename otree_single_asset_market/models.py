@@ -45,6 +45,7 @@ class Player(markets_models.Player):
 
     def asset_endowment(self):
         return self.subsession.config.asset_endowment
+        
     
     def cash_endowment(self):
         return self.subsession.config.cash_endowment
