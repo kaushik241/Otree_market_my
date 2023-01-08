@@ -61,13 +61,13 @@ export class TraderState extends PolymerElement {
             // this player's settled cash
             settledCash: {
                 type: Number,
-                value: TRADER_STATE.settled_cash,
+                value: TRADER_STATE.settled_cash/100,
                 notify: true,
             },
             // this player's available cash
             availableCash: {
                 type: Number,
-                value: TRADER_STATE.available_cash,
+                value: TRADER_STATE.available_cash/100,
                 notify: true,
             },
             questionInfo: {
@@ -158,8 +158,10 @@ export class TraderState extends PolymerElement {
 
     // call this method to send an order enter message to the backend
     enter_order(price, volume, is_bid, asset_name=null) {
+        alert("Total trading cost is:-" + (Math.round(price*100)/100)* volume + '\nTotal brokerage is:-' + (Math.round(price*100)/100)*volume*0.01)
         this.$.enter_chan.send({
-            price: price,
+            // Changed by Kaushik to implement brokerage
+            price: (Math.round(price * 100) / 100) * 100,
             volume: volume,
             is_bid: is_bid,
             asset_name: asset_name,
@@ -306,18 +308,35 @@ export class TraderState extends PolymerElement {
         if (is_bid) {
             this._update_subproperty('availableAssetsDict', asset_name, volume);
             this._update_subproperty('settledAssetsDict', asset_name, volume);
+            // Changed by Kaushik to implement brokerage
+            this.availableCash -= (price/100) * volume;
+            this.availableCash -= (price/100) * volume * 0.01;
+            this.settledCash -= (price/100) * volume;
+            this.settledCash -= (price/100) * volume * 0.01;
+            
+            this.availableCash = (Math.round(this.availableCash*100)/100)
+            this.settledCash = (Math.round(this.settledCash*100)/100)
 
-            this.availableCash -= price * volume;
-            this.settledCash -= price * volume;
-            alert(this.clueInfo)
+
+            
+            // alert(this.clueInfo)
 
         }
         else {
             this._update_subproperty('availableAssetsDict', asset_name, -volume);
             this._update_subproperty('settledAssetsDict', asset_name, -volume);
 
-            this.availableCash += price * volume;
-            this.settledCash += price * volume;
+            // Changed by Kaushik to implement brokerage
+
+            this.availableCash += (price/100) * volume;
+            this.availableCash -= (price/100) * volume * 0.01;
+
+            this.settledCash += (price/100) * volume;
+            this.settledCash -= (price/100) * volume * 0.01;
+
+            this.availableCash = (Math.round(this.availableCash*100)/100)
+            this.settledCash = (Math.round(this.settledCash*100)/100)
+
         }
     }
 
@@ -326,18 +345,26 @@ export class TraderState extends PolymerElement {
     update_holdings_available(order, removed) {
         const sign = removed ? 1 : -1;
         if (order.is_bid){
-            this.availableCash += order.price * order.volume * sign;
+            // Changed by Kaushik to implement brokerage
+            this.availableCash += (order.price/100) * order.volume * sign;
+            this.availableCash += (order.price/100) * order.volume * sign * 0.01;
+
+            this.availableCash = (Math.round(this.availableCash*100)/100)
+            this.settledCash = (Math.round(this.settledCash*100)/100)
+            
 
             // Changed by Kaushik to implement Brokerage
             if (removed == false)
-                this.availableCash -= 1;
+                // this.availableCash -= 1;
+                console.log('hi')
 
         }
         else{
             this._update_subproperty('availableAssetsDict', order.asset_name, order.volume * sign)
             // Changed by Kaushik to implement Brokerage
             if (removed == false)
-                this.availableCash -= 1;
+                // this.availableCash -= 1;
+                console.log('hi')
         }
     }
 

@@ -18,7 +18,8 @@ export class OrderList extends PolymerElement {
             displayFormat: {
                 type: Object,
                 value: function() {
-                    return order => `${order.volume} @ $${order.price}`;
+                    // Changed by Kaushik to implement brokerage
+                    return order => `${order.volume} @ $${(order.price)/100}`;
                 },
             },
         };

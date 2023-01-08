@@ -99,7 +99,9 @@ class OrderEnterWidget extends PolymerElement {
     }
 
     _enter_order(event) {
-        const price = parseInt(this.$.price_input.value);
+        // const price = parseInt(this.$.price_input.value);
+        // Changed by Kaushik to implement float price
+        const price = parseFloat(this.$.price_input.value);
         const volume = parseInt(this.$.volume_input.value);
         const is_bid = (event.target.value == "bid");
         const order = {

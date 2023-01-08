@@ -241,6 +241,7 @@ class Player(BasePlayer):
     settled_assets = JSONField()
     available_assets = JSONField()
 
+    
     settled_cash = models.IntegerField()
     available_cash = models.IntegerField()
 
@@ -305,8 +306,9 @@ class Player(BasePlayer):
         self.available_assets = asset_endowment
 
         cash_endowment = self.cash_endowment()
-        self.settled_cash = cash_endowment
-        self.available_cash = cash_endowment
+        # Changed by Kaushik to implement decimal brokerage
+        self.settled_cash = cash_endowment * 100
+        self.available_cash = cash_endowment * 100
 
         #Changed by Kaushik
         #To initialize information box
@@ -323,20 +325,18 @@ class Player(BasePlayer):
         param removed is true when the changed order was removed and false when the changed order was added'''
         sign = 1 if removed else -1
         if order.is_bid:
-            #Changed by Kaushik to implement Brokerage of 1 Rupee
             self.available_cash += (order.price * order.volume * sign)
             print(self.available_cash)
-            if not removed:
-                self.available_cash -= 1
-                print(self.available_cash)
+            #Changed by Kaushik to implement Brokerage of 1 Rupee
+            self.available_cash += int(order.price * order.volume*0.01*sign)
+            print(self.available_cash)
 
         else:
-            #Changed by Kaushik to implement Brokerage of 1 Rupee
             self.available_assets[order.exchange.asset_name] += order.volume * sign
             print(self.available_cash)
-            if not removed:
-                self.available_cash -= 1
-                print(self.available_cash)
+            #Changed by Kaushik to implement Brokerage of 1 Rupee
+            self.available_cash +=  int(order.price * order.volume * 0.01 * sign)
+            print(self.available_cash)
 
     def update_holdings_trade(self, price, volume, is_bid, asset_name):
         '''update this player's holdings (cash and assets) after a trade occurs.
@@ -345,18 +345,18 @@ class Player(BasePlayer):
             self.available_assets[asset_name] += volume
             self.settled_assets[asset_name] += volume
             
-            self.available_cash -= price * volume
-            self.settled_cash -= price * volume
+            self.available_cash -= (price * volume + int(price*volume*0.01))
+            self.settled_cash -= (price * volume + int(price*volume*0.01))
         else:
             self.available_assets[asset_name] -= volume
             self.settled_assets[asset_name] -= volume
             
-            self.available_cash += price * volume
-            self.settled_cash += price * volume
+            self.available_cash += (price * volume - int(price*volume*0.01)) 
+            self.settled_cash += (price * volume - int(price*volume*0.01))
     
     def check_available(self, is_bid, price, volume, asset_name):
         '''check whether this player has enough available holdings to enter an order'''
-        if is_bid and self.available_cash < price * volume:
+        if is_bid and self.available_cash < price * volume + int(price*volume*0.01):
             return False
         elif not is_bid and self.available_assets[asset_name] < volume:
             return False
