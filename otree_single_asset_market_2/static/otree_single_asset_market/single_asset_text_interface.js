@@ -28,7 +28,6 @@ class SingleAssetTextInterface extends PolymerElement {
             availableCash: Number,
             questionInfo: String,
             clueInfo: String,
-            trueAnsFirstRound: String,
         };
     }
 
@@ -134,7 +133,6 @@ class SingleAssetTextInterface extends PolymerElement {
                 available-cash="{{availableCash}}"
                 questionInfo="{{questionInfo}}"
                 clueInfo="{{clueInfo}}"
-                trueAnsFirstRound = "{{trueAnsFirstRound}}"
                 on-confirm-trade="_confirm_trade"
                 on-confirm-cancel="_confirm_cancel"
                 on-error="_handle_error"
@@ -222,12 +220,12 @@ class SingleAssetTextInterface extends PolymerElement {
         this.$.clue_info_id.innerHTML = this.$.trader_state.clueInfo
         console.log(this.$.trader_state.trades)
         console.log(this.$.trader_state.clueInfo)
-        // console.log(this.$.trader_state, "error 1")
-        console.log(this.$.trader_state.trueAnsFirstRound)
+
         const diffMakingOrders = [];
         for (const i of this.$.trader_state.trades) {
             diffMakingOrders.push(i['making_orders']);
         }
+
         const tradeInfo = [];
         const priceInfo = [];
         const timeInfo = [];

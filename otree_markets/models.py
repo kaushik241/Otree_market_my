@@ -247,37 +247,19 @@ class Player(BasePlayer):
 
     question_info = models.CharField()
     clue_info = models.CharField()
+    true_ans_first_round = models.FloatField()
+
+    
     
 
     #Changed by kaushik
     #To calculate the information box
     def question_info_func(self):
-        payout = [50,240,490]
+        payout = [50,240,490] 
         probabilities = [0.35,0.45,0.20]
         true_ans_index = 1
-        true_ans = payout[true_ans_index]
-        true_prob = probabilities[true_ans_index]
-        
-        payout_string = ""
-        for i,j in zip(payout,probabilities):
-            payout_string = payout_string + f"${i} ({j*100}% Chance) or "
-            
 
-        payout_string = 'or'.join(payout_string.split('or')[:-1])
-        payout.remove(true_ans)
-        probabilities.remove(true_prob)
-        hint_payout_index = random.choice([i for i,j in enumerate(payout)])
-        hing_payout = payout[hint_payout_index]
-        
-        hint_string = f"The asset will not pay ${hing_payout}"
-        
-        return [payout_string, hint_string]
-
-
-    
-
-    
-
+        return {"payout":payout, "probabilities":probabilities}
 
     def asset_endowment(self):
         '''this method defines each player's initial endowment of each asset. in single-asset mode, this should return
@@ -289,6 +271,11 @@ class Player(BasePlayer):
 
 
         raise NotImplementedError
+
+    def first_round_info(self):
+        '''thi method creates custom string for first round kind of questions we want to display on the screen'''
+
+        return NotImplementedError()
 
     def cash_endowment(self):
         '''this method defines each player's initial cash endowment. it should return an integer for this
@@ -310,12 +297,17 @@ class Player(BasePlayer):
         self.settled_cash = cash_endowment * 100
         self.available_cash = cash_endowment * 100
 
+        #for the true answer of first round
+
         #Changed by Kaushik
         #To initialize information box
-        self.question_info = self.question_info_func()[0]
-        print(self.question_info)
-        self.clue_info = self.question_info_func()[1]
-        print(self.clue_info)
+
+        first_round_info_box = self.first_round_info()
+        self.question_info = first_round_info_box[0]
+        # print(self.question_info)
+        self.clue_info = first_round_info_box[1]
+        # print(self.clue_info)
+        self.true_ans_first_round = first_round_info_box[2]
 
         self.save()
     

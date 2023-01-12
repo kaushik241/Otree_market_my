@@ -80,6 +80,12 @@ export class TraderState extends PolymerElement {
                 value: TRADER_STATE.clueInfo,
                 notify: true,
             },
+            trueAnsFirstRound: {
+                type: String,
+                value: TRADER_STATE.trueAnsFirstRound,
+                notify: true,
+            },
+
 
             // the amount of time remaining in this round of trading in seconds if period_length is set, null otherwise
             // updated once a second
@@ -147,7 +153,7 @@ export class TraderState extends PolymerElement {
     ready() {
         super.ready();
         this.pcode = this.$.constants.participantCode;
-        console.log(TRADER_STATE.clueInfo)
+        console.log(TRADER_STATE.trueAnsFirstRound)
         // dynamically make single-asset properties computed only when in single-asset mode
         // that way these properties will just be null when using multiple assets. might prevent some confusion
         if (Object.keys(this.availableAssetsDict).length == 1) {

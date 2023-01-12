@@ -28,6 +28,7 @@ class BaseMarketPage(Page):
                 'settled_cash': self.player.settled_cash,
                 'question_info': self.player.question_info,
                 'clue_info': self.player.clue_info,
+                'true_ans_first_round':self.player.true_ans_first_round,
             }
         }) 
         print(context)

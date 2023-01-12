@@ -1,0 +1,18 @@
+{% extends "otree_markets/Page.html" %}
+{% load staticfiles otree %}
+
+{% block title %}
+    Market
+{% endblock %}
+
+{% block scripts %}
+    <script type="module" src="/static/otree_single_asset_market/results_1.js"></script>
+    <script type="module" src="/static/otree_markets/disable_interface_overlay.js"></script>
+
+{% endblock %}
+
+{% block content %}
+
+<result-1></result-1>
+
+{% endblock %}
